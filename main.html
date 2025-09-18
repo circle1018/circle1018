@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>생물과 환경 | 초5 방탈출 게임</title>
+<meta name="description" content="초등학교 5학년 과학 2단원(생물과 환경) 복습용 교육형 방탈출 게임" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ctext y='50' font-size='50'%3E🌿%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0f172a;        /* slate-900 */
+  --panel:#111827e6;   /* gray-900 with alpha */
+  --card:#1f2937;      /* gray-800 */
+  --muted:#94a3b8;     /* slate-400 */
+  --text:#e5e7eb;      /* gray-200 */
+  --accent:#22c55e;    /* green-500 */
+  --accent-2:#06b6d4;  /* cyan-500 */
+  --danger:#ef4444;    /* red-500 */
+  --warn:#f59e0b;      /* amber-500 */
+  --lock:#c084fc;      /* violet-400 */
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:
+  radial-gradient(1200px 600px at 100% -10%, #052e16 0%, transparent 60%),
+  radial-gradient(1200px 700px at -10% 120%, #042f2e 0%, transparent 60%), var(--bg);
+  color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, "Helvetica Neue", Helvetica, "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+header{
+  position:sticky; top:0; z-index:10; backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, #0b1224cc, #0b122400);
+  padding:14px 16px 10px; border-bottom:1px solid #0b122480;
+}
+.container{max-width:1100px; margin:0 auto; padding:18px;}
+.brand{display:flex; gap:12px; align-items:center}
+.brand h1{font-size:20px; margin:0; letter-spacing:.2px}
+.badge{font-size:12px; color:#0b1224; background:linear-gradient(135deg,var(--accent),#a3e635); padding:2px 8px; border-radius:999px; font-weight:700}
+.kpis{display:grid; grid-template-columns: 1fr auto auto; gap:12px; align-items:center; margin-top:8px}
+.progress{
+  height:10px; background:#0b1224; border-radius:999px; overflow:hidden; box-shadow: inset 0 0 0 1px #0b1224;
+}
+.progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .5s ease}
+.timer, .score{font-size:14px; color:var(--muted)}
+.controls{display:flex; gap:8px}
+button{
+  border:0; border-radius:10px; padding:10px 14px; color:#031018; background:linear-gradient(135deg,#a7f3d0,#67e8f9);
+  font-weight:700; cursor:pointer; box-shadow: var(--shadow); transition: transform .06s ease;
+}
+button.secondary{background:#0b1224; color:var(--text); border:1px solid #1f2937}
+button.ghost{background:#0000; color:var(--text); border:1px solid #1f2937}
+button:active{transform: translateY(1px)}
+main{padding:12px 16px 40px}
+.stage{
+  display:none; margin:18px 0; padding:18px; background:linear-gradient(180deg,#0b1224aa,#0b1224cc);
+  border:1px solid #1f2937; border-radius:16px; box-shadow: var(--shadow);
+}
+.stage.active{display:block}
+.stage h2{margin:0 0 6px; display:flex; align-items:center; gap:8px}
+.stage h2 .tag{font-size:12px; color:#022c22; background:linear-gradient(135deg,#5eead4,#86efac); padding:2px 8px; border-radius:999px; font-weight:800}
+.stage p.lead{color:#cbd5e1; margin-top:0}
+.grid{display:grid; gap:14px}
+.grid.cols-2{grid-template-columns: repeat(2, minmax(0, 1fr))}
+.grid.cols-3{grid-template-columns: repeat(3, minmax(0, 1fr))}
+.panel{
+  background:var(--card); border:1px solid #2b3645; border-radius:14px; padding:12px; min-height:140px;
+}
+.panel h3{margin:0 0 8px; font-size:16px; color:#c7d2fe}
+.cards{display:flex; flex-wrap:wrap; gap:10px; min-height:56px}
+.card{
+  user-select:none; padding:8px 10px; border:1px dashed #3b82f6; border-radius:10px; background:#0b1224;
+  color:#dbeafe; font-weight:700; cursor:grab; display:inline-flex; gap:6px; align-items:center;
+}
+.card[data-type="생물"]{border-color:#22c55e; color:#bbf7d0}
+.card[data-type="비생물"]{border-color:#06b6d4; color:#99f6e4}
+.card[data-role="생산자"]{border-color:#84cc16}
+.card[data-role="소비자"]{border-color:#f59e0b}
+.card[data-role="분해자"]{border-color:#a78bfa}
+.dropzone{
+  background:#0b1224; border:2px dashed #334155; border-radius:12px; padding:12px; min-height:120px; transition: border-color .2s;
+}
+.dropzone.over{border-color:#38bdf8}
+.lock{
+  display:flex; gap:8px; align-items:center; padding:10px; border-radius:12px; background:linear-gradient(90deg,#0b1224, #1f2937);
+  border:1px solid #2b3645; color:#e9d5ff;
+}
+.lock input[type="text"], .lock input[type="number"], .lock select{
+  background:#0b1224; color:var(--text); border:1px solid #2b3645; border-radius:8px; padding:8px 10px; width:120px;
+}
+.lock .chip{background:#2b3645; padding:4px 8px; border-radius:999px; font-size:12px}
+.hint{font-size:14px; color:#a5b4fc; background:#11192e; padding:10px 12px; border-left:4px solid #60a5fa; border-radius:12px}
+.correct{outline:2px solid var(--accent)}
+.incorrect{outline:2px solid var(--danger)}
+.mcq{display:grid; gap:8px}
+.mcq label{
+  display:flex; gap:10px; align-items:center; background:#0b1224; border:1px solid #2b3645; padding:10px; border-radius:10px; cursor:pointer;
+}
+input[type="radio"]{accent-color:#22c55e}
+.kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background:#0b1224; border:1px solid #2b3645; padding:2px 6px; border-radius:6px; font-size:12px}
+footer{color:#64748b; text-align:center; padding:28px}
+.modal{
+  position:fixed; inset:0; display:none; place-items:center; background:rgba(2,6,23,.65); z-index:50;
+}
+.modal.active{display:grid}
+.modal > .box{
+  width:min(720px, 92vw); background:linear-gradient(180deg,#0b1224cc,#0b1224f2);
+  border:1px solid #334155; border-radius:18px; padding:20px; box-shadow: var(--shadow);
+}
+.small{font-size:12px; color:var(--muted)}
+/* responsive tweaks */
+@media (max-width: 900px){
+  .grid.cols-2, .grid.cols-3{grid-template-columns: 1fr}
+  .kpis{grid-template-columns: 1fr; gap:8px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <div class="brand">
+      <div aria-hidden="true" style="font-size:24px">🌿🔒</div>
+      <h1>생물과 환경 — 교육형 방탈출</h1>
+      <span class="badge">초5 과학 2단원</span>
+    </div>
+    <div class="kpis">
+      <div class="progress" aria-label="진행률"><i id="progressBar"></i></div>
+      <div class="timer" aria-live="polite">⏱️ 남은 시간: <b id="timer">50:00</b></div>
+      <div class="score">⭐ 점수: <b id="score">0</b></div>
+      <div class="controls">
+        <button id="btnHint" class="secondary" type="button">힌트 요청 💡</button>
+        <button id="btnReset" class="ghost" type="button">초기화 ↺</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="app" role="main">
+  <!-- Intro -->
+  <section class="stage active" id="stage-0" data-stage="0" aria-labelledby="intro-title">
+    <h2 id="intro-title"><span class="tag">시작</span> 생태계 연구소에 갇혔다?!</h2>
+    <p class="lead">
+      여러분은 생태계 연구소의 인턴 연구원입니다. 갑자기 보안 시스템이 작동하며 문이 <span class="kbd">잠금</span> 상태가 되었어요!<br/>
+      <b>5개의 미션</b>을 해결해 탈출 암호를 완성하세요. 팀으로 협력하면 더 빨라요. 🤝
+    </p>
+    <ul>
+      <li>총 시간: <b>50분</b> (상단 타이머)</li>
+      <li>모든 스테이지를 통과하면 <b>최종 암호</b> 입력창이 열립니다.</li>
+      <li>힌트를 쓰면 시간 패널티 없이 <b>점수 -2</b>가 돼요.</li>
+    </ul>
+    <div class="panel">
+      <button id="btnStart" type="button">게임 시작 ▶</button>
+    </div>
+  </section>
+
+  <!-- Stage 1 -->
+  <section class="stage" id="stage-1" data-stage="1" aria-labelledby="s1-title">
+    <h2 id="s1-title"><span class="tag">스테이지 1</span> 생물 vs 비생물 분류</h2>
+    <p class="lead">카드를 <b>생물 요소</b>와 <b>비생물 요소</b>로 올바르게 분류하고, 각 개수를 입력하세요.</p>
+    <div class="grid cols-3">
+      <div class="panel">
+        <h3>카드 더미</h3>
+        <div class="cards dropzone" id="s1-pool" aria-label="카드 더미(끌어놓기 가능)"></div>
+      </div>
+      <div class="panel">
+        <h3>생물 요소</h3>
+        <div class="cards dropzone" id="s1-bio"></div>
+      </div>
+      <div class="panel">
+        <h3>비생물 요소</h3>
+        <div class="cards dropzone" id="s1-abiotic"></div>
+      </div>
+    </div>
+    <div class="lock" aria-live="polite">
+      <span>🔐 잠금 해제:</span>
+      <span class="chip">생물 개수</span>
+      <input type="number" id="s1-count-bio" placeholder="예: 5" inputmode="numeric" />
+      <span class="chip">비생물 개수</span>
+      <input type="number" id="s1-count-abio" placeholder="예: 4" inputmode="numeric" />
+      <button id="s1-check" type="button">확인</button>
+    </div>
+    <div class="hint" data-hint-for="1" hidden>
+      힌트: 스스로 증식·성장·행동하는 대상은 <b>생물</b>, 햇빛·물·공기·온도처럼 환경을 이루는 것은 <b>비생물</b>이에요. ☀️💧
+    </div>
+  </section>
+
+  <!-- Stage 2 -->
+  <section class="stage" id="stage-2" data-stage="2" aria-labelledby="s2-title">
+    <h2 id="s2-title"><span class="tag">스테이지 2</span> 생산자·소비자·분해자</h2>
+    <p class="lead">각 생물을 알맞은 역할(생산자/소비자/분해자)로 드래그하세요.</p>
+    <div class="grid cols-2">
+      <div class="panel">
+        <h3>생물 카드</h3>
+        <div class="cards dropzone" id="s2-pool"></div>
+      </div>
+      <div class="grid cols-3">
+        <div class="panel">
+          <h3>생산자</h3>
+          <div class="cards dropzone" id="s2-producer"></div>
+        </div>
+        <div class="panel">
+          <h3>소비자</h3>
+          <div class="cards dropzone" id="s2-consumer"></div>
+        </div>
+        <div class="panel">
+          <h3>분해자</h3>
+          <div class="cards dropzone" id="s2-decomposer"></div>
+        </div>
+      </div>
+    </div>
+    <div class="lock">
+      <span>🔐 잠금 해제:</span>
+      <button id="s2-check" type="button">분류 검사</button>
+    </div>
+    <div class="hint" data-hint-for="2" hidden>
+      힌트: <b>생산자</b>는 광합성으로 유기양분을 만듭니다(식물·조류). <b>소비자</b>는 다른 생물을 먹고, <b>분해자</b>는 유기물을 분해해 무기물로 돌려보냅니다. 🌱🦊🍄
+    </div>
+  </section>
+
+  <!-- Stage 3 -->
+  <section class="stage" id="stage-3" data-stage="3" aria-labelledby="s3-title">
+    <h2 id="s3-title"><span class="tag">스테이지 3</span> 먹이사슬 만들기</h2>
+    <p class="lead">아래 <b>서식지</b>에서 타당한 먹이사슬을 완성하세요. (생산자 → 1차소비자 → 2차소비자 → 3차소비자)</p>
+    <div class="panel">
+      <h3>초원 생태계</h3>
+      <div class="grid cols-3" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="dropzone" id="s3-slot-0" aria-label="생산자 슬롯"></div>
+        <div class="dropzone" id="s3-slot-1" aria-label="1차 소비자 슬롯"></div>
+        <div class="dropzone" id="s3-slot-2" aria-label="2차 소비자 슬롯"></div>
+        <div class="dropzone" id="s3-slot-3" aria-label="3차 소비자 슬롯"></div>
+      </div>
+      <div style="margin-top:10px" class="cards" id="s3-pool"></div>
+      <small class="small">팁: 소비자끼리는 직접 먹이관계가 성립하지 않을 수 있어요. 생산자는 항상 맨 앞!</small>
+    </div>
+    <div class="lock">
+      <span>🔐 잠금 해제:</span>
+      <button id="s3-check" type="button">연결 검사</button>
+    </div>
+    <div class="hint" data-hint-for="3" hidden>
+      힌트: 예) <b>풀 → 메뚜기 → 개구리 → 뱀</b> 처럼 에너지가 위로 흐릅니다. 생산자가 빠지면 전체가 무너져요. 📈
+    </div>
+  </section>
+
+  <!-- Stage 4 -->
+  <section class="stage" id="stage-4" data-stage="4" aria-labelledby="s4-title">
+    <h2 id="s4-title"><span class="tag">스테이지 4</span> 생태 피라미드 & 평형</h2>
+    <p class="lead">상황을 읽고 <b>평형을 깨뜨린 원인</b>을 고르세요. (복수 선택 가능)</p>
+    <div class="panel">
+      <p><b>상황:</b> 하천 생태계에서 <u>조류(생산자)</u>가 급감했고, <u>물벼룩(1차 소비자)</u>과 <u>붕어(2차 소비자)</u>도 함께 줄었습니다. 최근 공장 밀집 지역에서 비가 온 뒤 변화가 시작되었어요.</p>
+      <div class="mcq" role="group" aria-label="원인 선택">
+        <label><input type="checkbox" name="s4" value="오염수 유입"> 공장 <b>오염수</b>가 비와 함께 유입되었다.</label>
+        <label><input type="checkbox" name="s4" value="상위포식자 증가"> 최상위 소비자가 갑자기 늘었다.</label>
+        <label><input type="checkbox" name="s4" value="일조량 증가"> 일조량이 크게 늘었다.</label>
+        <label><input type="checkbox" name="s4" value="수초제거"> 수초제거로 은신처가 줄었다.</label>
+      </div>
+    </div>
+    <div class="lock">
+      <span>🔐 잠금 해제:</span>
+      <button id="s4-check" type="button">정답 확인</button>
+    </div>
+    <div class="hint" data-hint-for="4" hidden>
+      힌트: 생산자가 먼저 줄었다면 물의 <b>수질 악화</b>나 빛 부족, 서식처 파괴를 의심해요. 🧪
+    </div>
+  </section>
+
+  <!-- Stage 5 -->
+  <section class="stage" id="stage-5" data-stage="5" aria-labelledby="s5-title">
+    <h2 id="s5-title"><span class="tag">스테이지 5</span> 적응 & 환경오염 — 최종 암호</h2>
+    <p class="lead">사진/설명 카드를 환경과 짝지은 뒤, 단어의 <b>첫 글자</b>로 최종 암호(한글 3글자)를 완성하세요.</p>
+    <div class="grid cols-2">
+      <div class="panel">
+        <h3>생물 적응/오염 카드</h3>
+        <div class="cards dropzone" id="s5-pool"></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="panel">
+          <h3>건조 환경</h3>
+          <div class="cards dropzone" id="s5-dry"></div>
+        </div>
+        <div class="panel">
+          <h3>추운 환경</h3>
+          <div class="cards dropzone" id="s5-cold"></div>
+        </div>
+        <div class="panel">
+          <h3>수질 오염</h3>
+          <div class="cards dropzone" id="s5-water"></div>
+        </div>
+        <div class="panel">
+          <h3>도시 소음</h3>
+          <div class="cards dropzone" id="s5-noise"></div>
+        </div>
+      </div>
+    </div>
+    <div class="lock">
+      <span>🔐 최종 암호(세 글자):</span>
+      <input type="text" id="s5-code" maxlength="3" placeholder="예: ㅇㅈㅁ" />
+      <button id="s5-check" type="button">탈출 시도</button>
+    </div>
+    <div class="hint" data-hint-for="5" hidden>
+      힌트: 각 환경에 가장 <b>유리</b>한 적응/대응을 맞춰보세요. 예) 선인장 가시는 건조환경에 유리! 🌵
+    </div>
+  </section>
+
+  <!-- Finale -->
+  <section class="stage" id="stage-6" data-stage="6" aria-labelledby="s6-title">
+    <h2 id="s6-title"><span class="tag">완료</span> 축하합니다! 🎉</h2>
+    <p class="lead">모든 미션을 해결했습니다. 오늘 배운 핵심어를 팀별로 1가지만 발표해 봅시다: <i>생산자·소비자·분해자 / 먹이사슬·먹이그물 / 생태 피라미드 / 적응 / 오염</i></p>
+    <div class="panel">
+      <button id="btnRestart" class="secondary">처음부터 다시 ▶</button>
+      <button id="btnPrint" class="ghost">활동 결과 인쇄 🖨️</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <small>© 2025 생태계 연구소 — 교실용 오프라인 웹앱 · 제작: HTML + CSS + Javascript 🔨🤖🔧</small>
+</footer>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="box">
+    <h3 id="modal-title">힌트</h3>
+    <p id="modal-body">내용</p>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
+      <button class="ghost" id="modal-close">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================
+   데이터 정의
+================================== */
+const GAME_DURATION_SEC = 50 * 60; // 50분
+const state = {
+  started:false,
+  current:0,
+  solved:[false,false,false,false,false],
+  score:0,
+  timeLeft: GAME_DURATION_SEC,
+};
+
+const EL = (sel) => document.querySelector(sel);
+const $ = EL; // alias
+
+/* Stage 1: 분류 카드 */
+const S1_CARDS = [
+  {label:'풀', type:'생물'},
+  {label:'나무', type:'생물'},
+  {label:'버섯', type:'생물'},
+  {label:'지렁이', type:'생물'},
+  {label:'물', type:'비생물'},
+  {label:'햇빛', type:'비생물'},
+  {label:'공기', type:'비생물'},
+  {label:'바람', type:'비생물'},
+  {label:'돌', type:'비생물'},
+  {label:'이끼', type:'생물'},
+];
+
+/* Stage 2: 역할 카드 */
+const S2_CARDS = [
+  {label:'소나무', role:'생산자'},
+  {label:'민들레', role:'생산자'},
+  {label:'메뚜기', role:'소비자'},
+  {label:'토끼', role:'소비자'},
+  {label:'여우', role:'소비자'},
+  {label:'뱀', role:'소비자'},
+  {label:'지렁이', role:'분해자'},
+  {label:'곰팡이', role:'분해자'},
+  {label:'박테리아', role:'분해자'},
+];
+
+/* Stage 3: 먹이사슬 */
+const S3_POOL = [
+  {label:'풀', kind:'생산자', slot:0},
+  {label:'메뚜기', kind:'1차', slot:1},
+  {label:'개구리', kind:'2차', slot:2},
+  {label:'뱀', kind:'3차', slot:3},
+  {label:'독수리', kind:'상위'}, // 미끼 카드(오답 유도)
+  {label:'버섯', kind:'분해자'},  // 미끼 카드
+];
+
+/* Stage 4: 정답 세트 */
+const S4_CORRECT = new Set(['오염수 유입','수초제거']);
+
+/* Stage 5: 적응/오염 매칭 */
+const S5_CARDS = [
+  {label:'가시·두꺼운 줄기(선인장)', key:'건조', target:'#s5-dry', initial:'ㄱ'},
+  {label:'두꺼운 털·지방층(북극여우)', key:'추운', target:'#s5-cold', initial:'ㅊ'},
+  {label:'정수·퇴적물 제거', key:'수질', target:'#s5-water', initial:'ㅅ'},
+  {label:'방음 확충·차음벽', key:'소음', target:'#s5-noise', initial:'ㅅ'},
+];
+const S5_CODE = 'ㄱㅊㅅ'; // 건조-추운-수질 : 예시 코드
+
+/* ================================
+   유틸: 생성 & DnD
+================================== */
+function makeCard(text, extra = {}){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.draggable = true;
+  el.textContent = text;
+  for(const [k,v] of Object.entries(extra)){
+    el.dataset[k] = v;
+  }
+  el.addEventListener('dragstart', (e)=>{
+    e.dataTransfer.setData('text/plain', JSON.stringify({text, data: el.dataset}));
+    setTimeout(()=> el.classList.add('ghosting'),0);
+  });
+  el.addEventListener('dragend', ()=> el.classList.remove('ghosting'));
+  return el;
+}
+
+function attachDropzone(zone){
+  zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('over'));
+  zone.addEventListener('drop', (e)=>{
+    e.preventDefault();
+    zone.classList.remove('over');
+    try{
+      const {text, data} = JSON.parse(e.dataTransfer.getData('text/plain'));
+      // 재생성해서 붙여야 dataset/리스너 유지가 쉬움
+      const el = makeCard(text, data);
+      zone.appendChild(el);
+    }catch(err){}
+  });
+}
+
+/* ================================
+   초기 렌더
+================================== */
+function renderStage1(){
+  const pool = $('#s1-pool'), bio = $('#s1-bio'), abio = $('#s1-abiotic');
+  [pool,bio,abio].forEach(attachDropzone);
+  // 카드 섞기
+  const shuffled = [...S1_CARDS].sort(()=> Math.random()-0.5);
+  shuffled.forEach(c=>{
+    const card = makeCard(c.label, {type:c.type});
+    if(c.type==='생물') card.setAttribute('data-type','생물');
+    else card.setAttribute('data-type','비생물');
+    pool.appendChild(card);
+  });
+}
+
+function renderStage2(){
+  const pool = $('#s2-pool'), zones = ['#s2-producer','#s2-consumer','#s2-decomposer'].map(EL);
+  [pool, ...zones].forEach(attachDropzone);
+  const shuffled = [...S2_CARDS].sort(()=> Math.random()-0.5);
+  shuffled.forEach(c=>{
+    const card = makeCard(c.label, {role:c.role});
+    card.setAttribute('data-role', c.role);
+    pool.appendChild(card);
+  });
+}
+
+function renderStage3(){
+  const pool = $('#s3-pool');
+  ['#s3-slot-0','#s3-slot-1','#s3-slot-2','#s3-slot-3','#s3-pool'].map(EL).forEach(attachDropzone);
+  const shuffled = [...S3_POOL].sort(()=> Math.random()-0.5);
+  shuffled.forEach(c=>{
+    const card = makeCard(c.label, {kind:c.kind, slot:c.slot ?? ''});
+    pool.appendChild(card);
+  });
+}
+
+function renderStage5(){
+  const pool = $('#s5-pool');
+  ['#s5-pool','#s5-dry','#s5-cold','#s5-water','#s5-noise'].map(EL).forEach(attachDropzone);
+  const shuffled = [...S5_CARDS].sort(()=> Math.random()-0.5);
+  shuffled.forEach(c=>{
+    const card = makeCard(c.label, {key:c.key, initial:c.initial});
+    pool.appendChild(card);
+  });
+}
+
+/* ================================
+   진행/타이머/점수
+================================== */
+let timerId = null;
+function startTimer(){
+  if(timerId) clearInterval(timerId);
+  timerId = setInterval(()=>{
+    state.timeLeft--;
+    if(state.timeLeft < 0){
+      clearInterval(timerId);
+      showModal('시간 종료 ⏰', '아쉽네요! 다시 도전해 볼까요? <br><br>상단의 <b>초기화</b> 버튼을 눌러 재시작하세요.');
+      lockAll();
+      return;
+    }
+    const m = Math.floor(state.timeLeft/60).toString().padStart(2,'0');
+    const s = (state.timeLeft%60).toString().padStart(2,'0');
+    $('#timer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function addScore(n){
+  state.score += n;
+  if(state.score < 0) state.score = 0;
+  $('#score').textContent = state.score;
+}
+
+function updateProgress(){
+  const solvedCount = state.solved.filter(Boolean).length;
+  $('#progressBar').style.width = `${(solvedCount/5)*100}%`;
+}
+
+/* ================================
+   네비게이션 & 상태
+================================== */
+function goToStage(n){
+  document.querySelectorAll('.stage').forEach(s=> s.classList.remove('active'));
+  const el = document.querySelector(`.stage[data-stage="${n}"]`);
+  if(el){ el.classList.add('active'); state.current = n; }
+  updateProgress();
+  save();
+}
+
+function nextStage(){
+  const idx = Math.min(6, state.current + 1);
+  goToStage(idx);
+}
+
+function lockAll(){
+  document.querySelectorAll('button, input, select').forEach(el=> el.disabled = true);
+}
+
+/* ================================
+   힌트/모달
+================================== */
+function showModal(title, html){
+  $('#modal-title').textContent = title;
+  $('#modal-body').innerHTML = html;
+  $('#modal').classList.add('active');
+}
+$('#modal-close').addEventListener('click', ()=> $('#modal').classList.remove('active'));
+
+$('#btnHint').addEventListener('click', ()=>{
+  const s = state.current;
+  const hintEl = document.querySelector(`.hint[data-hint-for="${s}"]`);
+  if(hintEl){
+    hintEl.hidden = false;
+    addScore(-2);
+    showModal('힌트 💡', hintEl.innerHTML);
+  }else{
+    showModal('힌트', '현재 단계에는 별도의 힌트가 없어요!');
+  }
+});
+
+/* ================================
+   로컬 저장/복원
+================================== */
+const KEY = 'eco-escape-v1';
+function save(){
+  const payload = {
+    started: state.started,
+    current: state.current,
+    solved: state.solved,
+    score: state.score,
+    timeLeft: state.timeLeft
+  };
+  localStorage.setItem(KEY, JSON.stringify(payload));
+}
+function restore(){
+  try{
+    const data = JSON.parse(localStorage.getItem(KEY));
+    if(!data) return;
+    Object.assign(state, data);
+    $('#score').textContent = state.score;
+    const m = Math.floor(state.timeLeft/60).toString().padStart(2,'0');
+    const s = (state.timeLeft%60).toString().padStart(2,'0');
+    $('#timer').textContent = `${m}:${s}`;
+    updateProgress();
+    goToStage(state.current);
+  }catch(e){}
+}
+
+/* ================================
+   검사 로직
+================================== */
+// Stage 1 검사
+$('#s1-check').addEventListener('click', ()=>{
+  const bioCount = $('#s1-bio').querySelectorAll('.card').length;
+  const abiCount = $('#s1-abiotic').querySelectorAll('.card').length;
+
+  const expectBio = S1_CARDS.filter(c=> c.type==='생물').length;
+  const expectAbio = S1_CARDS.length - expectBio;
+
+  const in1 = Number($('#s1-count-bio').value);
+  const in2 = Number($('#s1-count-abio').value);
+
+  // 분류가 모두 맞았는지 검사
+  let ok = true;
+  $('#s1-bio .card').forEach(c=> { if(c.dataset.type!=='생물') ok=false; });
+  $('#s1-abiotic .card').forEach(c=> { if(c.dataset.type!=='비생물') ok=false; });
+
+  if(ok && in1===expectBio && in2===expectAbio && bioCount===expectBio && abiCount===expectAbio){
+    addScore(10);
+    state.solved[0]=true; updateProgress(); save();
+    $('#stage-1 .lock').classList.add('correct');
+    showModal('성공! ✅', '정확한 분류입니다. 다음 스테이지로 이동하세요.');
+    setTimeout(()=> goToStage(2), 600);
+  }else{
+    $('#stage-1 .lock').classList.add('incorrect');
+    setTimeout(()=> $('#stage-1 .lock').classList.remove('incorrect'), 700);
+    showModal('다시 시도 🤔', '카드가 올바른 영역에 있는지, 개수 입력이 정확한지 확인해 보세요.');
+  }
+});
+
+// Stage 2 검사
+$('#s2-check').addEventListener('click', ()=>{
+  const producerOK = [...$('#s2-producer').querySelectorAll('.card')].every(c=> c.dataset.role==='생산자');
+  const consumerOK = [...$('#s2-consumer').querySelectorAll('.card')].every(c=> c.dataset.role==='소비자');
+  const decomposerOK = [...$('#s2-decomposer').querySelectorAll('.card')].every(c=> c.dataset.role==='분해자');
+  const total = document.querySelectorAll('#stage-2 .card').length;
+
+  if(producerOK && consumerOK && decomposerOK && total === S2_CARDS.length){
+    addScore(10);
+    state.solved[1]=true; updateProgress(); save();
+    $('#stage-2 .lock').classList.add('correct');
+    showModal('성공! ✅', '완벽한 분류예요. 먹이사슬을 만들어 봅시다!');
+    setTimeout(()=> goToStage(3), 600);
+  }else{
+    $('#stage-2 .lock').classList.add('incorrect');
+    setTimeout(()=> $('#stage-2 .lock').classList.remove('incorrect'), 700);
+    showModal('앗, 일부 오답!', '생산자/소비자/분해자 정의를 다시 떠올려 보세요.');
+  }
+});
+
+// Stage 3 검사
+$('#s3-check').addEventListener('click', ()=>{
+  const slots = ['#s3-slot-0','#s3-slot-1','#s3-slot-2','#s3-slot-3'].map(EL);
+  const names = slots.map(z=> z.querySelector('.card')?.textContent?.trim() || '');
+  const kinds = slots.map(z=> z.querySelector('.card')?.dataset.kind || '');
+
+  const correctNames = ['풀','메뚜기','개구리','뱀'];
+  const correctKinds = ['생산자','1차','2차','3차'];
+
+  const ok = names.every((n,i)=> n===correctNames[i]) && kinds.every((k,i)=> k===correctKinds[i]);
+
+  if(오케이){
+    addScore(10);
+    state.solved[2]=true; updateProgress(); save();
+    $('#stage-3 .lock').classList.add('correct');
+    showModal('좋아요! ✅', '에너지는 생산자에서 상위 소비자로 이동합니다. 다음은 생태계 평형!');
+    setTimeout(()=> goToStage(4), 600);
+  }else{
+    $('#stage-3 .lock').classList.add('incorrect');
+    setTimeout(()=> $('#stage-3 .lock').classList.remove('incorrect'), 700);
+    showModal('연결이 어색해요 🤔', '올바른 순서를 다시 생각해 보세요: <b>생산자 → 1차 → 2차 → 3차</b>');
+  }
+});
+
+// Stage 4 검사
+$('#s4-check').addEventListener('click', ()=>{
+  const checked = [...document.querySelectorAll('input[name="s4"]:checked')].map(i=> i.value);
+  const set = new Set(checked);
+  let ok = (set.size === S4_CORRECT.size);
+  if(오케이) for(const v of S4_CORRECT){ if(!set.has(v)) ok=false; }
+
+  if(오케이){
+    addScore(10);
+    state.solved[3]=true; updateProgress(); save();
+    $('#stage-4 .lock').classList.add('correct');
+    showModal('정답! ✅', '오염수 유입은 생산자(조류)를 직접 감소시킬 수 있고, 수초 제거는 은신처 감소로 먹이 그물 전반에 악영향을 줍니다.');
+    setTimeout(()=> goToStage(5), 600);
+  }else{
+    $('#stage-4 .lock').classList.add('incorrect');
+    setTimeout(()=> $('#stage-4 .lock').classList.remove('incorrect'), 700);
+    showModal('조금 더! ❗', '상황의 <b>원인</b>을 중심으로 생각해 보세요. 어떤 선택이 생산자를 먼저 줄게 만들까요?');
+  }
+});
+
+// Stage 5 검사
+$('#s5-check').addEventListener('click', ()=>{
+  // 매칭 검사는 각 타깃에 최소 1개 이상 올바른 카드가 있는지만 확인 (수업상 토의 허용)
+  const dryOK  = [...$('#s5-dry .card')].some(c=> c.dataset.key.includes('건조'));
+  const coldOK = [...$('#s5-cold .card')].some(c=> c.dataset.key.includes('추운'));
+  const waterOK= [...$('#s5-water .card')].some(c=> c.dataset.key.includes('수질'));
+  const noiseOK= [...$('#s5-noise .card')].some(c=> c.dataset.key.includes('소음'));
+
+  const codeInput = $('#s5-code').value.trim();
+  const codeOK = (codeInput === S5_CODE);
+
+  if(dryOK && coldOK && waterOK && noiseOK && codeOK){
+    addScore(10);
+    state.solved[4]=true; updateProgress(); save();
+    $('#stage-5 .lock').classList.add('correct');
+    showModal('탈출 성공 🎉', `최종 암호 <b>${S5_CODE}</b> 입력 완료!`);
+    setTimeout(()=> goToStage(6), 600);
+  }else{
+    $('#stage-5 .lock').classList.add('incorrect');
+    setTimeout(()=> $('#stage-5 .lock').classList.remove('incorrect'), 700);
+    let msg = '매칭과 암호를 다시 확인해 보세요.';
+    if(codeInput && codeInput !== S5_CODE) msg += ` (힌트: 초성은 <b>${S5_CODE}</b> 입니다)`;
+    showModal('조금만 더! 🔐', msg);
+  }
+});
+
+/* ================================
+   버튼/이벤트
+================================== */
+$('#btnStart').addEventListener('click', ()=>{
+  state.started = true; save();
+  startTimer();
+  goToStage(1);
+});
+$('#btnReset').addEventListener('click', ()=>{
+  if(confirm('모든 진행상황을 초기화할까요?')){
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+});
+$('#btnRestart').addEventListener('click', ()=>{
+  localStorage.removeItem(KEY);
+  location.reload();
+});
+$('#btnPrint').addEventListener('click', ()=> window.print());
+
+/* ================================
+   부드러운 UX: 풀/영역 카드 초기화
+================================== */
+function populateAll(){
+  // Stage1
+  $('#s1-pool').innerHTML = $('#s1-bio').innerHTML = $('#s1-abiotic').innerHTML = '';
+  renderStage1();
+  // Stage2
+  $('#s2-pool').innerHTML = $('#s2-producer').innerHTML = $('#s2-consumer').innerHTML = $('#s2-decomposer').innerHTML = '';
+  renderStage2();
+  // Stage3
+  ['#s3-slot-0','#s3-slot-1','#s3-slot-2','#s3-slot-3','#s3-pool'].forEach(sel=> $(sel).innerHTML='');
+  renderStage3();
+  // Stage5
+  ['#s5-pool','#s5-dry','#s5-cold','#s5-water','#s5-noise'].forEach(sel=> $(sel).innerHTML='');
+  renderStage5();
+}
+
+/* ================================
+   시작 시 구동
+================================== */
+window.addEventListener('DOMContentLoaded', ()=>{
+  populateAll();
+  restore();
+  if(state.started) startTimer();
+});
+
+/* ================================
+   키보드 접근성 (간단 포커스 이동)
+================================== */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight'){
+    const n = Math.min(5, state.current+1);
+    goToStage(n);
+  }else if(e.key === 'ArrowLeft'){
+    const n = Math.max(0, state.current-1);
+    goToStage(n);
+  }
+});
+</script>
+</body>
+</html>
